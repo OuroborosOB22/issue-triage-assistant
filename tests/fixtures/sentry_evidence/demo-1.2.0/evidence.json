@@ -1,0 +1,294 @@
+{
+  "schema_version" : "1.0.0",
+  "run_id" : "demo-1.2.0",
+  "request" : {
+    "schema_version" : "1.0.0",
+    "run_id" : "demo-1.2.0",
+    "project_id" : "client",
+    "operation" : "REHEARSE_UPGRADE",
+    "source" : {
+      "commit" : null,
+      "dirty" : false,
+      "manifest_sha256" : "c0f3eb5cdc026ad46c6670ada7019d92fb0f5eaef932ec02ca94d0c3e846d4a0",
+      "snapshot_id" : "snap-c0f3eb5cdc02",
+      "exclusions" : [ "*.key", "*.p12", "*.pem", "*.pfx", ".env", ".env.*", ".git", ".idea", ".mypy_cache", ".netrc", ".pytest_cache", ".tox", ".venv", "__pycache__", "credentials*", "env", "evidence", "id_ed25519*", "id_rsa*", "node_modules", "snapshots", "target", "venv", "work" ]
+    },
+    "profile_id" : "maven-verify",
+    "environment_spec" : {
+      "os" : "mac-os-x",
+      "architecture" : "aarch64",
+      "runtimes" : {
+        "java" : "25.0.2",
+        "maven" : "3.9.16"
+      },
+      "image_digest" : null,
+      "network_mode" : "CONTROLLED",
+      "env_var_names" : [ ]
+    },
+    "policy_id" : "default-permissive",
+    "execution_provider" : "LOCAL",
+    "change" : {
+      "ecosystem" : "MAVEN",
+      "package" : "org.upgradeguard.fixture:demo-lib",
+      "from_version" : "1.0.0",
+      "to_version" : "1.2.0"
+    }
+  },
+  "before" : {
+    "install" : {
+      "outcome" : "PASS",
+      "exit_code" : 0,
+      "duration_seconds" : 1.3,
+      "log_artifact" : "before-install.log"
+    },
+    "build" : {
+      "outcome" : "PASS",
+      "exit_code" : 0,
+      "duration_seconds" : 1.97,
+      "log_artifact" : "before-verify.log"
+    },
+    "tests" : {
+      "stage" : {
+        "outcome" : "PASS",
+        "exit_code" : 0,
+        "duration_seconds" : 1.97,
+        "log_artifact" : "before-verify.log"
+      },
+      "results" : [ {
+        "id" : "client.HelloTest::addsAGreetingWord",
+        "outcome" : "PASS"
+      }, {
+        "id" : "client.HelloTest::saysHello",
+        "outcome" : "PASS"
+      } ]
+    },
+    "resolved_dependencies" : [ {
+      "name" : "org.apiguardian:apiguardian-api",
+      "version" : "1.1.2"
+    }, {
+      "name" : "org.junit.jupiter:junit-jupiter",
+      "version" : "5.11.4"
+    }, {
+      "name" : "org.junit.jupiter:junit-jupiter-api",
+      "version" : "5.11.4"
+    }, {
+      "name" : "org.junit.jupiter:junit-jupiter-engine",
+      "version" : "5.11.4"
+    }, {
+      "name" : "org.junit.jupiter:junit-jupiter-params",
+      "version" : "5.11.4"
+    }, {
+      "name" : "org.junit.platform:junit-platform-commons",
+      "version" : "1.11.4"
+    }, {
+      "name" : "org.junit.platform:junit-platform-engine",
+      "version" : "1.11.4"
+    }, {
+      "name" : "org.opentest4j:opentest4j",
+      "version" : "1.3.0"
+    }, {
+      "name" : "org.upgradeguard.fixture:demo-lib",
+      "version" : "1.0.0"
+    } ],
+    "scanner_results" : [ {
+      "scanner" : "osv",
+      "version" : "api-v1",
+      "available" : true,
+      "coverage" : "Maven artifacts in the resolved dependency list",
+      "checked_at" : "2026-10-24T07:57:13.504133Z",
+      "finding_count" : 0
+    } ],
+    "artifacts" : [ "before-install.log", "before-reports-surefire-reports-test-client.hellotest.xml", "before-dependencies.txt", "before-version.log", "before-verify.log" ],
+    "environment" : {
+      "os" : "mac-os-x",
+      "architecture" : "aarch64",
+      "runtimes" : {
+        "java" : "25.0.2",
+        "maven" : "3.9.16"
+      },
+      "image_digest" : null,
+      "network_mode" : "CONTROLLED",
+      "env_var_names" : [ ]
+    }
+  },
+  "after" : {
+    "install" : {
+      "outcome" : "PASS",
+      "exit_code" : 0,
+      "duration_seconds" : 1.29,
+      "log_artifact" : "after-install.log"
+    },
+    "build" : {
+      "outcome" : "PASS",
+      "exit_code" : null,
+      "duration_seconds" : 1.84,
+      "log_artifact" : "after-verify.log"
+    },
+    "tests" : {
+      "stage" : {
+        "outcome" : "FAIL",
+        "exit_code" : 1,
+        "duration_seconds" : 1.84,
+        "log_artifact" : "after-verify.log"
+      },
+      "results" : [ {
+        "id" : "client.HelloTest::addsAGreetingWord",
+        "outcome" : "FAIL"
+      }, {
+        "id" : "client.HelloTest::saysHello",
+        "outcome" : "PASS"
+      } ]
+    },
+    "resolved_dependencies" : [ {
+      "name" : "org.apiguardian:apiguardian-api",
+      "version" : "1.1.2"
+    }, {
+      "name" : "org.junit.jupiter:junit-jupiter",
+      "version" : "5.11.4"
+    }, {
+      "name" : "org.junit.jupiter:junit-jupiter-api",
+      "version" : "5.11.4"
+    }, {
+      "name" : "org.junit.jupiter:junit-jupiter-engine",
+      "version" : "5.11.4"
+    }, {
+      "name" : "org.junit.jupiter:junit-jupiter-params",
+      "version" : "5.11.4"
+    }, {
+      "name" : "org.junit.platform:junit-platform-commons",
+      "version" : "1.11.4"
+    }, {
+      "name" : "org.junit.platform:junit-platform-engine",
+      "version" : "1.11.4"
+    }, {
+      "name" : "org.opentest4j:opentest4j",
+      "version" : "1.3.0"
+    }, {
+      "name" : "org.upgradeguard.fixture:demo-lib",
+      "version" : "1.2.0"
+    } ],
+    "scanner_results" : [ {
+      "scanner" : "osv",
+      "version" : "api-v1",
+      "available" : true,
+      "coverage" : "Maven artifacts in the resolved dependency list",
+      "checked_at" : "2026-10-24T07:57:13.504312Z",
+      "finding_count" : 0
+    } ],
+    "artifacts" : [ "after-version.log", "after-reports-surefire-reports-test-client.hellotest.xml", "after-install.log", "after-dependencies.txt", "after-verify.log" ],
+    "environment" : {
+      "os" : "mac-os-x",
+      "architecture" : "aarch64",
+      "runtimes" : {
+        "java" : "25.0.2",
+        "maven" : "3.9.16"
+      },
+      "image_digest" : null,
+      "network_mode" : "CONTROLLED",
+      "env_var_names" : [ ]
+    }
+  },
+  "diff" : {
+    "dependencies" : {
+      "added" : [ ],
+      "removed" : [ ],
+      "changed" : [ {
+        "name" : "org.upgradeguard.fixture:demo-lib",
+        "from" : "1.0.0",
+        "to" : "1.2.0"
+      } ]
+    },
+    "tests" : {
+      "regressions" : [ "client.HelloTest::addsAGreetingWord" ],
+      "new_failing" : [ ],
+      "missing_or_skipped" : [ ]
+    }
+  },
+  "verdict" : {
+    "decision" : "REJECT",
+    "findings" : [ {
+      "code" : "test-regression",
+      "severity" : "BLOCKING",
+      "subject" : "1 test(s) passed before the change and fail, error, are skipped or are missing after it: client.HelloTest::addsAGreetingWord",
+      "message" : "1 test(s) passed before the change and fail, error, are skipped or are missing after it: client.HelloTest::addsAGreetingWord",
+      "evidence_ids" : [ "after-verify.log" ],
+      "provenance" : "sentry verdict rules"
+    } ]
+  },
+  "coverage" : {
+    "checked" : [ "dependency resolution", "compilation", "unit tests", "resolved dependency diff", "library API differences", "known vulnerabilities (OSV)" ],
+    "not_checked" : [ "licence policy for Maven artifacts", "whether this project calls any changed API", "integration tests outside the selected profile", "malware analysis" ],
+    "unavailable" : [ ]
+  },
+  "artifact_manifest" : [ {
+    "id" : "after-dependencies.txt",
+    "path" : "after/dependencies.txt",
+    "sha256" : "a6169748f77f33b1f425b8464743a4def20bfe448e703b0c8e4feb37c5c0af04",
+    "media_type" : "text/plain"
+  }, {
+    "id" : "after-install.log",
+    "path" : "after/install.log",
+    "sha256" : "791693cce362571508ad7e043af082203bf53dc41be9734834c4e79f91f91fcf",
+    "media_type" : "text/plain"
+  }, {
+    "id" : "after-reports-surefire-reports-test-client.hellotest.xml",
+    "path" : "after/reports/surefire-reports/TEST-client.HelloTest.xml",
+    "sha256" : "45ecf7432cc13b8e64017ef3bd37ba802eb93693299650723379f3c2fc423be6",
+    "media_type" : "application/xml"
+  }, {
+    "id" : "after-verify.log",
+    "path" : "after/verify.log",
+    "sha256" : "6cc3a3133a9994cc28b9478cf764a42761b0780889c059ac7d1512e35bedddd6",
+    "media_type" : "text/plain"
+  }, {
+    "id" : "after-version.log",
+    "path" : "after/version.log",
+    "sha256" : "41f089e7340c890aa344009cf4c141c5f4c1c238f00db242de52bac1623dd748",
+    "media_type" : "text/plain"
+  }, {
+    "id" : "api-diff.json",
+    "path" : "api-diff.json",
+    "sha256" : "6ea6cdbb52bc1788d3b8eeb2141bb57af6dd1084e4cc579faf0d9859da9f4ade",
+    "media_type" : "application/json"
+  }, {
+    "id" : "before-dependencies.txt",
+    "path" : "before/dependencies.txt",
+    "sha256" : "ebdde7f7823940f09bd6f26fa71cd025d80333133382c418a09a10e6b6202799",
+    "media_type" : "text/plain"
+  }, {
+    "id" : "before-install.log",
+    "path" : "before/install.log",
+    "sha256" : "dd4b8f35badbac92c53f10df5d0c538d7b65a7f846783045ee20185b3ec64fe7",
+    "media_type" : "text/plain"
+  }, {
+    "id" : "before-reports-surefire-reports-test-client.hellotest.xml",
+    "path" : "before/reports/surefire-reports/TEST-client.HelloTest.xml",
+    "sha256" : "9268b0f489b7d9bc4a619b4267e9d8c453a0cac5bec266c6a80f1924ffbbe66e",
+    "media_type" : "application/xml"
+  }, {
+    "id" : "before-verify.log",
+    "path" : "before/verify.log",
+    "sha256" : "dd935d1a467cfe6389e2af1e8bb1817e82a8a1532622763fc263e9a3ed12e3cb",
+    "media_type" : "text/plain"
+  }, {
+    "id" : "before-version.log",
+    "path" : "before/version.log",
+    "sha256" : "41f089e7340c890aa344009cf4c141c5f4c1c238f00db242de52bac1623dd748",
+    "media_type" : "text/plain"
+  }, {
+    "id" : "pom-change.txt",
+    "path" : "pom-change.txt",
+    "sha256" : "5e6283104026394b9fe93da6b358be0707387fbb217c1f2a7a02f5e5a642b7d5",
+    "media_type" : "text/plain"
+  }, {
+    "id" : "scan.json",
+    "path" : "scan.json",
+    "sha256" : "630c0f8676f336cbbf256a25b2ec45fb5132af3032f1568d4fee86b221d5840b",
+    "media_type" : "application/json"
+  }, {
+    "id" : "verdict.json",
+    "path" : "verdict.json",
+    "sha256" : "3f4fad2d8e42480c0e96e26ff1ef47e81620d2c0e706120ff753bc22c90f21d6",
+    "media_type" : "application/json"
+  } ]
+}
