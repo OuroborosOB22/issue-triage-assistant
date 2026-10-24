@@ -37,12 +37,6 @@ What this does not show:
 ```
 python3.13 -m venv .venv-train
 ./.venv-train/bin/pip install -r requirements-train.txt     # includes torch, large
-./.venv-train/bin/python -m triage.cli fetch-data            # downloads and checks the data (needs the project on the path, see below)
-```
-
-The commands below assume `PYTHONPATH=src` (or `pip install -e .`):
-
-```
 export PYTHONPATH=src
 ./.venv-train/bin/python -m triage.cli fetch-data
 ./.venv-train/bin/python -m triage.cli inventory
