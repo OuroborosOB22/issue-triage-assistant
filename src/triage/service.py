@@ -72,7 +72,7 @@ def parse_issue(item):
 
 def create_app(model_dir=None, report_path=None, pinned_sha256=None):
     app = FastAPI(title="Issue triage", docs_url=None, redoc_url=None, openapi_url=None)
-    state = {"predictor": None, "manifest": None, "problem": None, "report": None}
+    state = {"predictor": None, "manifest": None, "problem": None, "report": None, "comparison": None}
     directory = model_dir or os.environ.get("TRIAGE_MODEL_DIR")
     pin = pinned_sha256 or os.environ.get("TRIAGE_MANIFEST_SHA256")
     if directory:
@@ -83,6 +83,9 @@ def create_app(model_dir=None, report_path=None, pinned_sha256=None):
     report_file = Path(report_path or os.environ.get("TRIAGE_REPORT") or (Path(directory) / "final_test.json" if directory else "final_test.json"))
     if report_file.is_file():
         state["report"] = json.loads(report_file.read_text())
+    comparison_file = report_file.parent / "dev_comparison.json"
+    if comparison_file.is_file():
+        state["comparison"] = json.loads(comparison_file.read_text())
 
     @app.middleware("http")
     async def headers(request, call_next):
@@ -115,9 +118,17 @@ def create_app(model_dir=None, report_path=None, pinned_sha256=None):
 
     @app.get("/v1/report")
     def report():
+        if state["report"] is not None and state["manifest"] is not None and state["report"].get("model_version") != state["manifest"]["model_version"]:
+            return problem("REPORT_UNAVAILABLE", "the saved test report belongs to a different model release", 404)
         if state["report"] is None:
             return problem("REPORT_UNAVAILABLE", "the held-out test has not been scored for this release", 404)
         return state["report"]
+
+    @app.get("/v1/comparison")
+    def comparison():
+        if state["comparison"] is None:
+            return problem("REPORT_UNAVAILABLE", "no development comparison has been saved", 404)
+        return state["comparison"]
 
     @app.post("/v1/classify")
     async def classify(request: Request):

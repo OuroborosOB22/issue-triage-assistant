@@ -144,3 +144,31 @@ def test_csv_export_neutralises_spreadsheet_formulas(client):
 def test_responses_carry_security_headers(client):
     headers = client.get("/health").headers
     assert "default-src 'none'" in headers["content-security-policy"] and headers["x-content-type-options"] == "nosniff"
+
+
+def test_the_page_and_its_assets_are_served_with_the_strict_policy(client):
+    page = client.get("/")
+    assert page.status_code == 200 and "Is it a bug" in page.text
+    assert client.get("/static/app.js").status_code == 200 and client.get("/static/style.css").status_code == 200
+    assert client.get("/static/fonts/inter-latin-400-normal.woff2").status_code == 200
+    assert "script-src 'self'" in page.headers["content-security-policy"] and "unsafe-inline" not in page.headers["content-security-policy"]
+
+
+def test_the_page_has_no_inline_script_or_remote_resources(client):
+    html = client.get("/").text
+    assert "<script>" not in html and "onclick=" not in html and "https://" not in html and "http://" not in html
+
+
+def test_a_saved_test_report_is_only_shown_for_the_release_it_scored(release, tmp_path):
+    report = tmp_path / "final_test.json"
+    report.write_text(json.dumps({"model_version": "some-other-release", "macro_f1": 0.99}))
+    other = TestClient(create_app(release, report))
+    assert other.get("/v1/report").status_code == 404
+    report.write_text(json.dumps({"model_version": "test-1", "macro_f1": 0.5}))
+    assert TestClient(create_app(release, report)).get("/v1/report").json()["macro_f1"] == 0.5
+
+
+def test_the_development_comparison_is_served_when_it_was_saved(release, tmp_path):
+    (tmp_path / "dev_comparison.json").write_text(json.dumps({"chosen": "x", "models": {}}))
+    assert TestClient(create_app(release, tmp_path / "final_test.json")).get("/v1/comparison").json()["chosen"] == "x"
+    assert TestClient(create_app(release, tmp_path / "nowhere" / "final_test.json")).get("/v1/comparison").status_code == 404
