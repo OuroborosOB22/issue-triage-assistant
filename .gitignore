@@ -32,3 +32,5 @@ reports/figures/*
 .idea/
 .vscode/
 *.swp
+
+.venv-train/

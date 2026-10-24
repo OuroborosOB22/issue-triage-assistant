@@ -21,6 +21,7 @@ dev = ["pytest", "httpx"]
 
 [project.scripts]
 breakcast = "breakcast.cli:main"
+triage = "triage.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
