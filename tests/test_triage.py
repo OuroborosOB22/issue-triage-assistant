@@ -172,3 +172,8 @@ def test_the_development_comparison_is_served_when_it_was_saved(release, tmp_pat
     (tmp_path / "dev_comparison.json").write_text(json.dumps({"chosen": "x", "models": {}}))
     assert TestClient(create_app(release, tmp_path / "final_test.json")).get("/v1/comparison").json()["chosen"] == "x"
     assert TestClient(create_app(release, tmp_path / "nowhere" / "final_test.json")).get("/v1/comparison").status_code == 404
+
+
+def test_the_logo_is_served_and_used_as_the_tab_icon(client):
+    assert 'rel="icon"' in client.get("/").text
+    assert client.get("/static/logo.png").headers["content-type"] == "image/png"

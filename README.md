@@ -1,3 +1,5 @@
+<p align="center"><img src="src/triage/web/static/logo.png" width="120" alt="Issue Triage Assistant logo"></p>
+
 # Issue Triage Assistant
 
 Reads the title and description of a GitHub issue and suggests one label: **bug**, **feature** or **question**. It works on one issue at a time or on a CSV file of up to 500 issues. It only suggests. A person decides, and the model never acts on an issue.
