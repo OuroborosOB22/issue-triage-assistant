@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0.0",
+  "task": "maven_upgrade_build_failure",
+  "ecosystem": "MAVEN",
+  "project_id": "sample-maven-app",
+  "package": "com.google.guava:guava",
+  "from_version": "31.1-jre",
+  "to_version": "33.0.0-jre",
+  "feature_schema_version": "1.0.0",
+  "features": {"major_delta": 2, "minor_delta": -1, "patch_delta": 0, "from_prerelease": 0, "to_prerelease": 0, "is_downgrade": 0, "version_parsed": 1, "change_kind": "major", "scope": "compile", "section": "dependencies", "file_type": "JAR"},
+  "missing_features": []
+}
