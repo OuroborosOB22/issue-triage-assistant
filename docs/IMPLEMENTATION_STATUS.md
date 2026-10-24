@@ -27,7 +27,7 @@ Last checked by running the commands below. Real means it ran on real data. Fixt
 
 | Check | Result |
 |---|---|
-| `./.venv/bin/python -m pytest` | 72 passed |
+| `./.venv/bin/python -m pytest` | 73 passed |
 | `breakcast train` on the real data | stops with exit code 2 and the missing counts |
 | `breakcast serve --model models/fixture`, `/health`, `/ready`, `/v1/model-info`, `/v1/predict` | answered, contract-valid |
 
