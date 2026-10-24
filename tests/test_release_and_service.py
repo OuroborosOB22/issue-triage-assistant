@@ -129,6 +129,13 @@ def test_oversized_body_is_refused(client):
     assert client.post("/v1/predict", content=b"{" + b" " * 30000 + b"}").status_code == 413
 
 
+def test_a_chunked_oversized_body_is_cut_off(client):
+    def chunks():
+        for _ in range(40):
+            yield b" " * 1000
+    assert client.post("/v1/predict", content=chunks()).status_code == 413
+
+
 def test_no_docs_or_openapi_pages(client):
     assert client.get("/docs").status_code == 404 and client.get("/openapi.json").status_code == 404
 

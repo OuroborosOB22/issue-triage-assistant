@@ -15,6 +15,22 @@ from .models import contributions, failure_scores, to_frame
 MAX_BODY = 20000
 
 
+class TooLarge(Exception):
+    pass
+
+
+async def read_limited(request):
+    declared = request.headers.get("content-length")
+    if declared and declared.isdigit() and int(declared) > MAX_BODY:
+        raise TooLarge()
+    received = bytearray()
+    async for chunk in request.stream():
+        received.extend(chunk)
+        if len(received) > MAX_BODY:
+            raise TooLarge()
+    return bytes(received)
+
+
 def response_body(status, manifest, score=None, explanations=None, scope=None, inference_ms=0.0):
     return {
         "schema_version": "1.0.0",
@@ -61,8 +77,9 @@ def create_app(model_dir=None, pinned_sha256=None):
 
     @app.post("/v1/predict")
     async def predict(request: Request):
-        raw = await request.body()
-        if len(raw) > MAX_BODY:
+        try:
+            raw = await read_limited(request)
+        except TooLarge:
             return JSONResponse(response_body("INVALID_FEATURES", state["manifest"], scope="request too large"), status_code=413)
         try:
             data = json.loads(raw)
