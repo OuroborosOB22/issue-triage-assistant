@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Issue Triage</title>
+<link rel="icon" type="image/png" sizes="64x64" href="/static/logo-64.png">
+<link rel="stylesheet" href="/static/style.css">
+<script src="/static/theme.js"></script>
+</head>
+<body>
+<header class="bar">
+  <a class="brand" href="/"><img class="logo" src="/static/logo-128.png" alt="" width="44" height="44"><pre class="figlet figbrand" aria-hidden="true">░▀█▀░█▀▀░█▀▀░█░█░█▀▀░░░▀█▀░█▀▄░▀█▀░█▀█░█▀▀░█▀▀
+░░█░░▀▀█░▀▀█░█░█░█▀▀░░░░█░░█▀▄░░█░░█▀█░█░█░█▀▀
+░▀▀▀░▀▀▀░▀▀▀░▀▀▀░▀▀▀░░░░▀░░▀░▀░▀▀▀░▀░▀░▀▀▀░▀▀▀</pre><span class="plain">Issue Triage</span></a>
+  <nav aria-label="Pages">
+    <a href="/"><pre class="figlet figlink" aria-hidden="true">░█░█░█▀█░█▄█░█▀▀
+░█▀█░█░█░█░█░█▀▀
+░▀░▀░▀▀▀░▀░▀░▀▀▀</pre><span class="plain">Home</span></a>
+    <a href="#classify" data-view="classify"><pre class="figlet figlink" aria-hidden="true">░█▀▀░█░░░█▀█░█▀▀░█▀▀░▀█▀░█▀▀░█░█
+░█░░░█░░░█▀█░▀▀█░▀▀█░░█░░█▀▀░░█░
+░▀▀▀░▀▀▀░▀░▀░▀▀▀░▀▀▀░▀▀▀░▀░░░░▀░</pre><span class="plain">Classify</span></a>
+    <a href="#batch" data-view="batch"><pre class="figlet figlink" aria-hidden="true">░█▀▄░█▀█░▀█▀░█▀▀░█░█
+░█▀▄░█▀█░░█░░█░░░█▀█
+░▀▀░░▀░▀░░▀░░▀▀▀░▀░▀</pre><span class="plain">Batch</span></a>
+    <a href="#evaluation" data-view="evaluation"><pre class="figlet figlink" aria-hidden="true">░█▀▀░█░█░█▀█░█░░░█░█░█▀█░▀█▀░▀█▀░█▀█░█▀█
+░█▀▀░▀▄▀░█▀█░█░░░█░█░█▀█░░█░░░█░░█░█░█░█
+░▀▀▀░░▀░░▀░▀░▀▀▀░▀▀▀░▀░▀░░▀░░▀▀▀░▀▀▀░▀░▀</pre><span class="plain">Evaluation</span></a>
+  </nav>
+  <button id="theme" class="icon" type="button" aria-label="Switch between dark and light">
+    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+  </button>
+</header>
+
+<main>
+  <p id="status" class="status" role="status">Checking the model.</p>
+
+  <section id="classify" class="view" hidden>
+    <h1>Is it a bug, a feature or a question?</h1>
+    <p class="lede">Paste an issue title and description. The model suggests one label and says how sure it is. It only suggests; a person decides.</p>
+    <form id="single" class="panel">
+      <label>Title<input id="title" maxlength="300" required autocomplete="off"></label>
+      <label>Description<textarea id="body" rows="8" maxlength="20000"></textarea></label>
+      <div class="row">
+        <button class="primary" type="submit">Classify</button>
+        <button id="sample" type="button" class="ghost">Try an example</button>
+      </div>
+    </form>
+    <div id="single-result" class="panel result" hidden></div>
+  </section>
+
+  <section id="batch" class="view" hidden>
+    <h1>Classify a CSV of issues</h1>
+    <p class="lede">Upload a CSV with a <code>title</code> column and an optional <code>body</code> column. Up to 500 issues, 1 MB.</p>
+    <form id="upload" class="panel">
+      <label>CSV file<input id="file" type="file" accept=".csv,text/csv"></label>
+      <div class="row"><button class="primary" type="submit">Classify file</button><button id="download" type="button" class="ghost" disabled>Download results</button></div>
+    </form>
+    <div id="batch-summary" class="chips" hidden></div>
+    <div id="batch-table" class="panel table-wrap" hidden></div>
+  </section>
+
+  <section id="evaluation" class="view" hidden>
+    <h1>How well does it work?</h1>
+    <p class="lede">Every number here is read from the saved reports of this model release. Nothing is typed in by hand.</p>
+    <div id="eval-body"></div>
+  </section>
+</main>
+
+<footer>Suggestions only. Scores are not calibrated probabilities. Trained on 1,500 labelled issues from five open source projects.</footer>
+<script src="/static/app.js"></script>
+</body>
+</html>

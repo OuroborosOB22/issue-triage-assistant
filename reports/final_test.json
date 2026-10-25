@@ -1,0 +1,112 @@
+{
+ "accuracy": 0.7933333333333333,
+ "confident_mistakes": [
+  {
+   "predicted": "question",
+   "repo": "microsoft/vscode",
+   "score": 0.992,
+   "title": "The markdown link in TEST RESULTS is hard to read",
+   "true": "bug"
+  },
+  {
+   "predicted": "feature",
+   "repo": "facebook/react",
+   "score": 0.992,
+   "title": "exhaustive-deps support for dynamic array",
+   "true": "question"
+  },
+  {
+   "predicted": "question",
+   "repo": "tensorflow/tensorflow",
+   "score": 0.992,
+   "title": "I need TensorFlow 2.2.0 but it is removed how to find it?",
+   "true": "bug"
+  },
+  {
+   "predicted": "question",
+   "repo": "bitcoin/bitcoin",
+   "score": 0.992,
+   "title": "Build failing on Ubuntu 22.04",
+   "true": "bug"
+  },
+  {
+   "predicted": "question",
+   "repo": "bitcoin/bitcoin",
+   "score": 0.992,
+   "title": "signmessage and verifymessage : \"Address does not refer to key\"",
+   "true": "bug"
+  }
+ ],
+ "confusion_matrix": {
+  "labels": [
+   "bug",
+   "feature",
+   "question"
+  ],
+  "matrix": [
+   [
+    409,
+    27,
+    64
+   ],
+   [
+    19,
+    426,
+    55
+   ],
+   [
+    71,
+    74,
+    355
+   ]
+  ]
+ },
+ "cross_repo_mean_f1": 0.7922750859006296,
+ "environment": {
+  "machine": "arm64",
+  "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "processor": "arm",
+  "python": "3.13.12"
+ },
+ "latency_ms_single": {
+  "median": 11.807125003542751,
+  "p95": 14.729316657758316,
+  "samples": 200
+ },
+ "macro_f1": 0.7924574566202027,
+ "manifest_sha256": "dadb7be29984376583286bc53bfa9b1090593a1e682cf4c0333a82ce8f4d478b",
+ "model_version": "setfit_all-MiniLM-L12-v2-27f2f0df",
+ "per_class": {
+  "bug": {
+   "f1": 0.8188188188188188,
+   "precision": 0.8196392785571143,
+   "recall": 0.818,
+   "support": 500
+  },
+  "feature": {
+   "f1": 0.8296007789678675,
+   "precision": 0.8083491461100569,
+   "recall": 0.852,
+   "support": 500
+  },
+  "question": {
+   "f1": 0.728952772073922,
+   "precision": 0.7489451476793249,
+   "recall": 0.71,
+   "support": 500
+  }
+ },
+ "per_repo_macro_f1": {
+  "bitcoin/bitcoin": 0.717515679646271,
+  "facebook/react": 0.8184040241282954,
+  "microsoft/vscode": 0.7727328365194226,
+  "opencv/opencv": 0.7824206016274596,
+  "tensorflow/tensorflow": 0.8703022875816994
+ },
+ "review": {
+  "accepted": 0.656,
+  "accuracy_on_accepted": 0.8790650406504065,
+  "threshold": 0.9886894822120667
+ },
+ "rows": 1500
+}
