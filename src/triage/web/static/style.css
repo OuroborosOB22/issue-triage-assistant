@@ -62,4 +62,4 @@ footer{border-top:1px solid var(--line);padding:18px 24px;color:var(--mute);font
 @media (max-width:640px){.bar{flex-wrap:wrap;gap:10px}nav{margin-left:0;order:3;width:100%}.bar-row{grid-template-columns:70px 1fr 48px}}
 @media (prefers-reduced-motion:no-preference){.fill{transition:width .5s cubic-bezier(.2,.8,.2,1)}}
 
-.logo{display:block;width:28px;height:28px;object-fit:contain}
+.logo{display:block;width:32px;height:32px;object-fit:cover;border-radius:8px}
