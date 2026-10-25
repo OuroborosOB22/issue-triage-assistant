@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
@@ -147,7 +148,7 @@ def test_responses_carry_security_headers(client):
 
 
 def test_the_page_and_its_assets_are_served_with_the_strict_policy(client):
-    page = client.get("/")
+    page = client.get("/app")
     assert page.status_code == 200 and "Is it a bug" in page.text
     assert client.get("/static/app.js").status_code == 200 and client.get("/static/style.css").status_code == 200
     assert client.get("/static/fonts/inter-latin-400-normal.woff2").status_code == 200
@@ -155,7 +156,7 @@ def test_the_page_and_its_assets_are_served_with_the_strict_policy(client):
 
 
 def test_the_page_has_no_inline_script_or_remote_resources(client):
-    html = client.get("/").text
+    html = client.get("/app").text
     assert "<script>" not in html and "onclick=" not in html and "https://" not in html and "http://" not in html
 
 
@@ -175,5 +176,21 @@ def test_the_development_comparison_is_served_when_it_was_saved(release, tmp_pat
 
 
 def test_the_logo_is_served_and_used_as_the_tab_icon(client):
-    assert 'rel="icon"' in client.get("/").text
+    assert 'rel="icon"' in client.get("/app").text
     assert client.get("/static/logo.png").headers["content-type"] == "image/png"
+
+
+def test_the_landing_page_is_served_and_leads_to_the_app(client):
+    page = client.get("/")
+    assert page.status_code == 200 and 'href="/app"' in page.text and 'href="#lifecycle"' in page.text
+    assert "script-src 'self'" in page.headers["content-security-policy"]
+    assert "<script>" not in page.text and "style=" not in page.text
+    assert "https://" not in page.text and "http://" not in page.text
+    for name in ("landing.css", "landing.js", "scene.png", "logo-64.png"):
+        assert client.get("/static/" + name).status_code == 200
+
+
+def test_the_landing_numbers_match_the_saved_report():
+    report = json.loads((Path(__file__).resolve().parents[1] / "reports" / "final_test.json").read_text())
+    page = (Path(__file__).resolve().parents[1] / "src" / "triage" / "web" / "landing.html").read_text()
+    assert f"{report['macro_f1']:.3f}" in page and f"{report['accuracy']:.3f}" in page

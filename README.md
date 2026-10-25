@@ -44,7 +44,7 @@ export PYTHONPATH=src
 ./.venv-train/bin/python -m triage.cli inventory
 ./.venv-train/bin/python -m triage.cli train --setfit sentence-transformers/all-MiniLM-L6-v2 sentence-transformers/all-MiniLM-L12-v2 --iterations 10 --device mps
 ./.venv-train/bin/python -m triage.cli final-test            # scores the test set once
-./.venv-train/bin/python -m triage.cli serve                 # http://127.0.0.1:8090
+./.venv-train/bin/python -m triage.cli serve                 # http://127.0.0.1:8090 (front page), /app (the tool)
 ```
 
 Use `--device cuda` on an NVIDIA GPU or leave it out for the CPU (slow). Training the 12-layer model took about 18 minutes on a 16 GB Apple silicon Mac. The `models/` folder is not committed, so train before serving. A release that is a plain scikit-learn model (if a simple model had won) can be served from the lighter `requirements.txt`.
@@ -60,7 +60,8 @@ Use `--device cuda` on an NVIDIA GPU or leave it out for the CPU (slow). Trainin
 | `GET /v1/report`, `GET /v1/comparison` | the saved test report (only for the loaded release) and the development comparison |
 | `POST /v1/classify` | JSON `{"title": ..., "body": ...}`, answers label, scores, review state |
 | `POST /v1/classify-batch` | a CSV body with a `title` column and optional `body`; add `?format=csv` for a download |
-| `GET /` | the page: classify one issue, classify a CSV, see the evaluation |
+| `GET /` | the front page, with a Start button |
+| `GET /app` | the working page: classify one issue, classify a CSV, see the evaluation |
 
 Limits: titles 300 characters, descriptions 20,000, a CSV 1 MB and 500 rows. Malformed rows are reported per row. Cells that start with `=`, `+`, `-` or `@` are prefixed with a quote in CSV downloads so a spreadsheet will not run them. Responses carry a strict content security policy and the page loads only its own scripts and fonts.
 

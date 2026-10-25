@@ -193,6 +193,10 @@ def create_app(model_dir=None, report_path=None, pinned_sha256=None):
         app.mount("/static", StaticFiles(directory=WEB / "static"), name="static")
 
         @app.get("/")
+        def landing():
+            return FileResponse(WEB / "landing.html")
+
+        @app.get("/app")
         def home():
             return FileResponse(WEB / "index.html")
 
