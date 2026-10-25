@@ -152,6 +152,10 @@ function downloadBatch() {
 
 function stat(value, caption) { return el("div", {"class": "stat"}, [el("b", {text: value}), el("span", {text: caption})]); }
 
+function titled(title, table) {
+  return el("div", {"class": "panel"}, [el("h2", {text: title}), el("div", {"class": "table-wrap"}, [table])]);
+}
+
 function classTable(report) {
   var body = el("tbody");
   LABELS.forEach(function (label) {
@@ -160,7 +164,7 @@ function classTable(report) {
       el("td", {"class": "num", text: fixed(row.f1)}), el("td", {"class": "num", text: String(row.support)})]));
   });
   var head = el("tr", {}, ["Class", "Precision", "Recall", "F1", "Rows"].map(function (name, i) { return el("th", {"class": i ? "num" : "", text: name}); }));
-  return el("div", {"class": "panel table-wrap"}, [el("table", {}, [el("thead", {}, [head]), body])]);
+  return titled("Per class", el("table", {}, [el("thead", {}, [head]), body]));
 }
 
 function matrix(report) {
@@ -192,7 +196,7 @@ function comparisonTable(comparison) {
       el("td", {"class": "num", text: item.train_seconds + " s"})]));
   });
   var head = el("tr", {}, ["Model", "Dev macro-F1", "Training time"].map(function (name, i) { return el("th", {"class": i ? "num" : "", text: name}); }));
-  return el("div", {"class": "panel table-wrap"}, [el("table", {}, [el("thead", {}, [head]), body])]);
+  return titled("Models compared on the development data", el("table", {}, [el("thead", {}, [head]), body]));
 }
 
 function loadEvaluation() {
@@ -213,7 +217,7 @@ function loadEvaluation() {
       Object.keys(r.per_repo_macro_f1).forEach(function (repo) {
         repoBody.appendChild(el("tr", {}, [el("td", {text: repo}), el("td", {"class": "num", text: fixed(r.per_repo_macro_f1[repo])})]));
       });
-      root.appendChild(el("div", {"class": "panel table-wrap"}, [el("table", {}, [el("thead", {}, [el("tr", {}, [el("th", {text: "Project"}), el("th", {"class": "num", text: "Macro-F1"})])]), repoBody])]));
+      root.appendChild(titled("Per project", el("table", {}, [el("thead", {}, [el("tr", {}, [el("th", {text: "Project"}), el("th", {"class": "num", text: "Macro-F1"})])]), repoBody])));
       var review = r.review;
       root.appendChild(el("div", {"class": "panel"}, [el("h2", {text: "Needs-review threshold"}),
         el("p", {text: review.threshold === null ? "No threshold reached the target accuracy on the development data, so no review state is shown." :
@@ -224,7 +228,7 @@ function loadEvaluation() {
       });
       root.appendChild(mistakes);
     }
-    if (comparison.ok) { root.appendChild(el("h2", {text: "Models compared on the development data"})); root.appendChild(comparisonTable(comparison.body)); }
+    if (comparison.ok) root.appendChild(comparisonTable(comparison.body));
     var limits = el("div", {"class": "panel"}, [el("h2", {text: "Limits"}),
       el("p", {text: "The test set mixes five open source projects that also appear in training, so these numbers say nothing about projects the model has never seen. The labels come from the projects' own labelling and contain noise. The score is not a calibrated probability."})]);
     if (info.ok) limits.appendChild(el("p", {"class": "note", text: "Release " + info.body.model_version + ", data source " + info.body.dataset.source + " at commit " + info.body.dataset.commit.slice(0, 7) + "."}));
