@@ -186,7 +186,7 @@ def test_the_landing_page_is_served_and_leads_to_the_app(client):
     assert "script-src 'self'" in page.headers["content-security-policy"]
     assert "<script>" not in page.text and "style=" not in page.text
     assert "https://" not in page.text and "http://" not in page.text
-    for name in ("landing.css", "landing.js", "scene.png", "logo-64.png"):
+    for name in ("landing.css", "landing.js", "scene.png", "logo-64.png", "logo-128.png"):
         assert client.get("/static/" + name).status_code == 200
 
 
