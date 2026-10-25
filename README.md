@@ -27,9 +27,25 @@ Models we compared on a development slice (300 issues) cut from the training dat
 | SetFit, MiniLM-L6 | 0.763 |
 | SetFit, MiniLM-L12 (the one we ship) | 0.810 |
 
+## What about projects the model has never seen?
+
+We also left each project out of training in turn, trained again, and scored that project's 300 test issues (`reports/unseen_projects.json`, made with `triage unseen-projects`). The shipped model's own result above is untouched.
+
+| Project left out | Unseen: SetFit | Unseen: TF-IDF | Same project, seen in training (shipped model) |
+|---|---|---|---|
+| bitcoin | 0.660 | 0.657 | 0.718 |
+| react | 0.756 | 0.591 | 0.818 |
+| vscode | 0.625 | 0.522 | 0.773 |
+| opencv | 0.688 | 0.610 | 0.782 |
+| tensorflow | 0.756 | 0.619 | 0.870 |
+| **average** | **0.697** | **0.600** | **0.792** |
+
+So on a project it has not seen, expect about 0.70 macro-F1 rather than 0.79. The neural model still beats the simple one by about 0.10. Part of the drop is that each of these runs trained on about 957 issues instead of 1,196, so the gap is not all down to the unseen project.
+
 ## Honest limits
 
-- The test issues come from the same five projects as the training issues, so the numbers say nothing about a project the model has never seen.
+- The service has no login and no rate limit. Run it on your own machine only, and put access control in front of it before showing it to anyone else.
+- The 0.792 is for projects that were in training. For projects it has never seen, the study above gives about 0.70.
 - The competition's own template scores higher (about 0.86 to 0.87 per project). Ours is one model for all projects, with a smaller encoder, trained on 1,196 issues.
 - The scores are the model's confidence, not true probabilities. The "needs review" rule leaves about two thirds of issues without a review flag.
 - The labels come from each project's own labelling and contain some noise.
