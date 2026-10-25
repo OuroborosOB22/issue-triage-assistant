@@ -4,7 +4,7 @@ import json
 import sys
 from pathlib import Path
 
-from . import artifacts, data, metrics, train
+from . import artifacts, data, metrics, train, unseen
 
 RAW = "data/raw/nlbse2024"
 RELEASES = "models"
@@ -58,6 +58,10 @@ def cmd_final_test(args):
     show({"macro_f1": report["macro_f1"], "cross_repo_mean_f1": report["cross_repo_mean_f1"], "review": report["review"]})
 
 
+def cmd_unseen(args):
+    show(unseen.run(args.raw, args.reports, args.models, args.device)["mean_macro_f1_on_unseen_project"])
+
+
 def cmd_serve(args):
     import uvicorn
     from .service import create_app
@@ -85,6 +89,12 @@ def main(argv=None):
     sub.add_argument("--model", default=RELEASES + "/candidate")
     sub.add_argument("--reports", default=REPORTS)
     sub.set_defaults(handler=cmd_final_test)
+    sub = commands.add_parser("unseen-projects")
+    sub.add_argument("--raw", default=RAW)
+    sub.add_argument("--reports", default=REPORTS)
+    sub.add_argument("--models", nargs="+", default=["majority", "tfidf", "setfit"], choices=["majority", "tfidf", "setfit"])
+    sub.add_argument("--device", default=None)
+    sub.set_defaults(handler=cmd_unseen)
     sub = commands.add_parser("serve")
     sub.add_argument("--model", default=RELEASES + "/candidate")
     sub.add_argument("--report", default=REPORTS + "/final_test.json")

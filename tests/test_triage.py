@@ -194,3 +194,30 @@ def test_the_landing_numbers_match_the_saved_report():
     report = json.loads((Path(__file__).resolve().parents[1] / "reports" / "final_test.json").read_text())
     page = (Path(__file__).resolve().parents[1] / "src" / "triage" / "web" / "landing.html").read_text()
     assert f"{report['macro_f1']:.3f}" in page and f"{report['accuracy']:.3f}" in page
+
+
+def test_review_threshold_treats_tied_confidences_as_one_group():
+    truth = ["bug"] * 10
+    scores = [{"bug": 0.9, "feature": 0.05, "question": 0.05}] * 10
+    wrong = {"bug": 0.05, "feature": 0.9, "question": 0.05}
+    scores = scores[:8] + [wrong, wrong]
+    threshold = metrics.review_threshold(truth, scores, target_accuracy=0.9)
+    assert threshold is None
+    assert metrics.coverage(truth, scores, threshold)["accepted"] == 0.0
+
+
+def test_review_threshold_keeps_a_tied_group_that_is_good_enough():
+    truth = ["bug"] * 10
+    right = {"bug": 0.9, "feature": 0.05, "question": 0.05}
+    wrong = {"bug": 0.05, "feature": 0.9, "question": 0.05}
+    scores = [right] * 9 + [wrong]
+    threshold = metrics.review_threshold(truth, scores, target_accuracy=0.9)
+    assert threshold == 0.9
+    assert metrics.coverage(truth, scores, threshold)["accuracy_on_accepted"] == 0.9
+
+
+def test_review_threshold_prefers_the_lowest_confidence_that_still_meets_the_target():
+    truth = ["bug"] * 4
+    scores = [{"bug": 0.99, "feature": 0.0, "question": 0.01}, {"bug": 0.95, "feature": 0.0, "question": 0.05},
+              {"bug": 0.9, "feature": 0.05, "question": 0.05}, {"bug": 0.2, "feature": 0.5, "question": 0.3}]
+    assert metrics.review_threshold(truth, scores, target_accuracy=0.9) == 0.9

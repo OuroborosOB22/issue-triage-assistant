@@ -34,9 +34,15 @@ def review_threshold(true_labels, scores, target_accuracy=0.9):
     pairs = sorted(((top(row)[1], top(row)[0] == truth) for row, truth in zip(scores, true_labels)), reverse=True)
     best = None
     correct = 0
-    for index, (confidence, right) in enumerate(pairs, start=1):
-        correct += right
-        if correct / index >= target_accuracy:
+    seen = 0
+    index = 0
+    while index < len(pairs):
+        confidence = pairs[index][0]
+        while index < len(pairs) and pairs[index][0] == confidence:
+            correct += pairs[index][1]
+            seen += 1
+            index += 1
+        if correct / seen >= target_accuracy:
             best = confidence
     return best
 
