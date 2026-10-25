@@ -59,7 +59,7 @@ td.num,th.num{text-align:right;font-family:var(--mono)}
 .matrix div{padding:10px 14px;text-align:center;border-radius:8px;min-width:64px}
 .matrix .head{color:var(--mute)}
 footer{border-top:1px solid var(--line);padding:18px 24px;color:var(--mute);font-size:13px;text-align:center}
-@media (max-width:640px){.bar{flex-wrap:wrap;gap:10px}nav{margin-left:0;order:3;width:100%}.bar-row{grid-template-columns:70px 1fr 48px}}
+@media (max-width:640px){.bar{flex-wrap:wrap;gap:10px}nav{margin-left:0;order:3;width:100%;flex-wrap:wrap}nav a{padding:8px 10px}.bar-row{grid-template-columns:70px 1fr 48px}}
 @media (prefers-reduced-motion:no-preference){.fill{transition:width .5s cubic-bezier(.2,.8,.2,1)}}
 
 .logo{display:block;width:32px;height:32px;object-fit:cover;border-radius:8px}
