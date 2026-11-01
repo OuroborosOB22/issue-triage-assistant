@@ -11,6 +11,6 @@ scikit-learn==1.9.1
 sentence-transformers==6.2.0
 setfit==1.2.0
 tokenizers==0.23.3
-torch==2.14.1
+torch==2.15.0
 transformers==5.20.2
 uvicorn==0.54.0
