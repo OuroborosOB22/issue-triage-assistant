@@ -1,11 +1,13 @@
 accelerate==1.15.0
 datasets==5.1.0
 fastapi==0.162.0
+httpx==0.28.1
 huggingface_hub==2.3.0
 joblib==1.6.0
 jsonschema==4.26.0
 numpy==2.5.4
 pandas==3.1.0
+pytest==9.1.1
 safetensors==0.8.0
 scikit-learn==1.9.1
 sentence-transformers==6.2.0

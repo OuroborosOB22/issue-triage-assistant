@@ -67,7 +67,10 @@ def load(directory, pinned_manifest_sha256=None):
     if manifest["kind"] == "sklearn":
         model = joblib.load(directory / SKLEARN_FILE)
         return Predictor(lambda texts: models.predict_scores(model, texts)), manifest
-    from setfit import SetFitModel
+    try:
+        from setfit import SetFitModel
+    except ImportError as failure:
+        raise UntrustedArtifact("setfit runtime packages are not installed (install requirements-train.txt)") from failure
     from . import setfit_model
     model = SetFitModel.from_pretrained(str(directory / SETFIT_DIR))
     return Predictor(lambda texts: setfit_model.predict_scores(model, texts)), manifest

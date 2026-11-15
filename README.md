@@ -52,14 +52,16 @@ So on a project it has not seen, expect about 0.70 macro-F1 rather than 0.79. Th
 
 ## Run it
 
+Use `requirements-train.txt` for training and serving the shipped SetFit model (or `requirements.txt` for running the fast unit tests with synthetic sklearn fixtures):
+
 ```
 python3.13 -m venv .venv-train
-./.venv-train/bin/pip install -r requirements-train.txt    # large, includes torch
-export PYTHONPATH=src
-./.venv-train/bin/python -m triage.cli fetch-data
-./.venv-train/bin/python -m triage.cli train --setfit sentence-transformers/all-MiniLM-L6-v2 sentence-transformers/all-MiniLM-L12-v2 --iterations 10 --device mps
-./.venv-train/bin/python -m triage.cli final-test          # scores the test set once
-./.venv-train/bin/python -m triage.cli serve               # http://127.0.0.1:8090
+./.venv-train/bin/pip install -r requirements-train.txt    # large, includes torch and setfit
+./.venv-train/bin/pip install --no-deps -e .
+./.venv-train/bin/triage fetch-data
+./.venv-train/bin/triage train --setfit sentence-transformers/all-MiniLM-L6-v2 sentence-transformers/all-MiniLM-L12-v2 --iterations 10 --device mps
+./.venv-train/bin/triage final-test                        # scores the test set once
+./.venv-train/bin/triage serve                             # http://127.0.0.1:8090
 ```
 
 Use `--device cuda` on an NVIDIA GPU, or leave it out for the CPU (slow). Training the larger model took about 18 minutes on a 16 GB Apple silicon Mac. The `models/` folder is not committed, so train before you serve. `final-test` refuses to run twice, so the test set is only scored once.

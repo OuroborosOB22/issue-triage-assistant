@@ -221,3 +221,29 @@ def test_review_threshold_prefers_the_lowest_confidence_that_still_meets_the_tar
     scores = [{"bug": 0.99, "feature": 0.0, "question": 0.01}, {"bug": 0.95, "feature": 0.0, "question": 0.05},
               {"bug": 0.9, "feature": 0.05, "question": 0.05}, {"bug": 0.2, "feature": 0.5, "question": 0.3}]
     assert metrics.review_threshold(truth, scores, target_accuracy=0.9) == 0.9
+
+
+def test_missing_setfit_runtime_leaves_service_unavailable_not_crashed(tmp_path, monkeypatch):
+    import sys
+    directory = tmp_path / "setfit-release"
+    (directory / artifacts.SETFIT_DIR).mkdir(parents=True)
+    (directory / artifacts.SETFIT_DIR / "config.json").write_text("{}")
+    artifacts.write_manifest(directory, "setfit", "setfit_test", "setfit-1", {"macro_f1": 0.8}, {"source": "test"}, 0.9)
+    monkeypatch.setitem(sys.modules, "setfit", None)
+    with pytest.raises(artifacts.UntrustedArtifact, match="setfit"):
+        artifacts.load(directory)
+    app = TestClient(create_app(directory, tmp_path / "none.json"))
+    assert app.get("/ready").status_code == 503
+    assert app.post("/v1/classify", json={"title": "crash bug"}).status_code == 503
+
+
+def test_frontend_examples_are_valid_issue_payloads():
+    import re
+    from triage.service import parse_issue
+    script = (Path(__file__).resolve().parents[1] / "src" / "triage" / "web" / "static" / "app.js").read_text()
+    match = re.search(r"var EXAMPLES = (\[.*?\]);", script, re.DOTALL)
+    assert match is not None
+    items = re.findall(r'title:\s*"((?:[^"\\]|\\.)*)"\s*,\s*body:\s*"((?:[^"\\]|\\.)*)"', match.group(1))
+    assert len(items) == 4
+    for title, body in items:
+        assert parse_issue({"title": title, "body": body.replace("\\n", "\n")})
