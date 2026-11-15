@@ -93,4 +93,4 @@ Please cite: Kallis, Colavito, Al-Kaswan, Pascarella, Chaparro, Rani. *The NLBSE
 
 ## Team
 
-Gurman Singh, Madhur Tuteja, Paryag.
+Gurman Singh, Madhur Tuteja.

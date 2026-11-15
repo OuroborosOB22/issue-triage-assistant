@@ -183,6 +183,7 @@ def test_the_logo_is_served_and_used_as_the_tab_icon(client):
 def test_the_landing_page_is_served_and_leads_to_the_app(client):
     page = client.get("/")
     assert page.status_code == 200 and 'href="/app"' in page.text and 'href="#lifecycle"' in page.text
+    assert "nc3" not in page.text and page.text.count('class="figbox nm') == 2 and "Gurman Singh and Madhur Tuteja" in page.text
     assert "script-src 'self'" in page.headers["content-security-policy"]
     assert "<script>" not in page.text and "style=" not in page.text
     assert "https://" not in page.text and "http://" not in page.text
