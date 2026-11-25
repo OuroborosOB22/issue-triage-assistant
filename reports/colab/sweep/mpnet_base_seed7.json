@@ -1,0 +1,64 @@
+{
+ "accuracy": 0.8166666666666667,
+ "checkpoint": "sentence-transformers/all-mpnet-base-v2",
+ "confusion_matrix": {
+  "labels": [
+   "bug",
+   "feature",
+   "question"
+  ],
+  "matrix": [
+   [
+    84,
+    5,
+    11
+   ],
+   [
+    11,
+    82,
+    7
+   ],
+   [
+    15,
+    6,
+    79
+   ]
+  ]
+ },
+ "cross_repo_mean_f1": 0.8163919202913739,
+ "device": "cuda",
+ "epochs": 1,
+ "iterations": 10,
+ "macro_f1": 0.8172571298317597,
+ "name": "mpnet_base",
+ "per_class": {
+  "bug": {
+   "f1": 0.8,
+   "precision": 0.7636363636363637,
+   "recall": 0.84,
+   "support": 100
+  },
+  "feature": {
+   "f1": 0.8497409326424871,
+   "precision": 0.8817204301075269,
+   "recall": 0.82,
+   "support": 100
+  },
+  "question": {
+   "f1": 0.8020304568527918,
+   "precision": 0.8144329896907216,
+   "recall": 0.79,
+   "support": 100
+  }
+ },
+ "per_repo_macro_f1": {
+  "bitcoin/bitcoin": 0.7169376693766938,
+  "facebook/react": 0.864278061385265,
+  "microsoft/vscode": 0.850369812426116,
+  "opencv/opencv": 0.75,
+  "tensorflow/tensorflow": 0.900374058268795
+ },
+ "rows": 300,
+ "seed": 7,
+ "train_seconds": 1111.6
+}

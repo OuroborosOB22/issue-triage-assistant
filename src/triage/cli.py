@@ -4,7 +4,7 @@ import json
 import sys
 from pathlib import Path
 
-from . import artifacts, data, metrics, train, unseen
+from . import artifacts, data, metrics, setfit_model, train, unseen
 
 RAW = "data/raw/nlbse2024"
 RELEASES = "models"
@@ -25,27 +25,35 @@ def cmd_inventory(args):
           "train_rows_dropped": prepared["dropped"]})
 
 
-def dataset_facts(prepared):
-    return {"source": "nlbse2024/issue-report-classification", "commit": data.COMMIT, "sha256": data.SHA256, "fit_rows": len(prepared["fit"]),
-            "dev_rows": len(prepared["dev"]), "test_rows": len(prepared["test"]), "split_seed": data.SPLIT_SEED, "train_rows_dropped": prepared["dropped"]}
+def dataset_facts(prepared, refit_on_all=False):
+    fit_rows = len(prepared["fit"]) + (len(prepared["dev"]) if refit_on_all else 0)
+    facts = {"source": "nlbse2024/issue-report-classification", "commit": data.COMMIT, "sha256": data.SHA256, "fit_rows": fit_rows,
+             "dev_rows": len(prepared["dev"]), "test_rows": len(prepared["test"]), "split_seed": data.SPLIT_SEED, "train_rows_dropped": prepared["dropped"]}
+    if refit_on_all:
+        facts["refit_on_all"] = True
+    return facts
 
 
 def cmd_train(args):
     prepared = train.prepare(args.raw)
     results = train.compare_baselines(prepared["fit"], prepared["dev"])
     if args.setfit:
-        results.update(train.compare_setfit(prepared["fit"], prepared["dev"], args.setfit, args.iterations, args.epochs, args.device))
+        results.update(train.compare_setfit(prepared["fit"], prepared["dev"], args.setfit, args.iterations, args.epochs, args.device, args.seed))
     chosen = train.best_name(results)
     labels = [issue.label for issue in prepared["dev"]]
     threshold = metrics.review_threshold(labels, results[chosen]["scores"])
+    refit = args.refit_on_all and chosen.startswith("setfit")
+    if refit:
+        results[chosen]["model"] = setfit_model.fit(prepared["fit"] + prepared["dev"], results[chosen]["dev"]["checkpoint"], iterations=args.iterations,
+                                                    epochs=args.epochs, seed=args.seed, device=args.device)
     dev_summary = {name: {key: value for key, value in item["dev"].items() if key != "confusion_matrix"} for name, item in results.items()}
-    version = "%s-%s" % (chosen, hashlib.sha256(json.dumps(dataset_facts(prepared), sort_keys=True).encode()).hexdigest()[:8])
+    version = "%s-%s" % (chosen, hashlib.sha256(json.dumps(dataset_facts(prepared, refit), sort_keys=True).encode()).hexdigest()[:8])
     out = Path(args.out)
-    kwargs = (out, results[chosen]["model"], chosen, version, results[chosen]["dev"], dataset_facts(prepared), threshold,
-              {"review": metrics.coverage(labels, results[chosen]["scores"], threshold)})
+    kwargs = (out, results[chosen]["model"], chosen, version, results[chosen]["dev"], dataset_facts(prepared, refit), threshold,
+              {"refit_on_all": refit, "review": metrics.coverage(labels, results[chosen]["scores"], threshold)})
     (artifacts.save_setfit if chosen.startswith("setfit") else artifacts.save_sklearn)(*kwargs)
     Path(args.reports).mkdir(parents=True, exist_ok=True)
-    (Path(args.reports) / "dev_comparison.json").write_text(json.dumps({"chosen": chosen, "models": dev_summary, "dataset": dataset_facts(prepared)}, indent=1,
+    (Path(args.reports) / "dev_comparison.json").write_text(json.dumps({"chosen": chosen, "models": dev_summary, "dataset": dataset_facts(prepared, refit)}, indent=1,
                                                                         sort_keys=True) + "\n")
     show({"chosen": chosen, "dev_macro_f1": {name: round(item["dev"]["macro_f1"], 4) for name, item in results.items()}, "review_threshold": threshold})
 
@@ -59,7 +67,8 @@ def cmd_final_test(args):
 
 
 def cmd_unseen(args):
-    show(unseen.run(args.raw, args.reports, args.models, args.device)["mean_macro_f1_on_unseen_project"])
+    settings = {"checkpoint": args.checkpoint, "iterations": args.iterations, "epochs": args.epochs}
+    show(unseen.run(args.raw, args.reports, args.models, args.device, settings)["mean_macro_f1_on_unseen_project"])
 
 
 def cmd_serve(args):
@@ -83,6 +92,8 @@ def main(argv=None):
     sub.add_argument("--iterations", type=int, default=10)
     sub.add_argument("--epochs", type=int, default=1)
     sub.add_argument("--device", default=None)
+    sub.add_argument("--seed", type=int, default=7)
+    sub.add_argument("--refit-on-all", action="store_true", help="after choosing on development, train the chosen SetFit model again on all training rows")
     sub.set_defaults(handler=cmd_train)
     sub = commands.add_parser("final-test")
     sub.add_argument("--raw", default=RAW)
@@ -94,6 +105,9 @@ def main(argv=None):
     sub.add_argument("--reports", default=REPORTS)
     sub.add_argument("--models", nargs="+", default=["majority", "tfidf", "setfit"], choices=["majority", "tfidf", "setfit"])
     sub.add_argument("--device", default=None)
+    sub.add_argument("--checkpoint", default=unseen.CHECKPOINT)
+    sub.add_argument("--iterations", type=int, default=10)
+    sub.add_argument("--epochs", type=int, default=1)
     sub.set_defaults(handler=cmd_unseen)
     sub = commands.add_parser("serve")
     sub.add_argument("--model", default=RELEASES + "/candidate")

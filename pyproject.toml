@@ -19,6 +19,7 @@ triage = ["web/*.html", "web/static/*", "web/static/fonts/*"]
 
 [project.optional-dependencies]
 dev = ["pytest", "httpx"]
+setfit = ["setfit", "sentence-transformers", "torch", "transformers", "datasets", "safetensors", "accelerate"]
 
 [project.scripts]
 triage = "triage.cli:main"

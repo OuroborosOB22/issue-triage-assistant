@@ -1,0 +1,64 @@
+{
+ "accuracy": 0.7833333333333333,
+ "checkpoint": "BAAI/bge-base-en-v1.5",
+ "confusion_matrix": {
+  "labels": [
+   "bug",
+   "feature",
+   "question"
+  ],
+  "matrix": [
+   [
+    79,
+    9,
+    12
+   ],
+   [
+    11,
+    82,
+    7
+   ],
+   [
+    19,
+    7,
+    74
+   ]
+  ]
+ },
+ "cross_repo_mean_f1": 0.7823728841100157,
+ "device": "cuda",
+ "epochs": 1,
+ "iterations": 10,
+ "macro_f1": 0.7837010225883964,
+ "name": "bge_base",
+ "per_class": {
+  "bug": {
+   "f1": 0.7559808612440191,
+   "precision": 0.7247706422018348,
+   "recall": 0.79,
+   "support": 100
+  },
+  "feature": {
+   "f1": 0.8282828282828283,
+   "precision": 0.8367346938775511,
+   "recall": 0.82,
+   "support": 100
+  },
+  "question": {
+   "f1": 0.7668393782383419,
+   "precision": 0.7956989247311828,
+   "recall": 0.74,
+   "support": 100
+  }
+ },
+ "per_repo_macro_f1": {
+  "bitcoin/bitcoin": 0.6786517089977102,
+  "facebook/react": 0.8134925623297716,
+  "microsoft/vscode": 0.8172871202396235,
+  "opencv/opencv": 0.7190107050572166,
+  "tensorflow/tensorflow": 0.8834223239257564
+ },
+ "rows": 300,
+ "seed": 7,
+ "train_seconds": 916.3
+}

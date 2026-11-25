@@ -4,7 +4,7 @@ var EXAMPLES = [
   {title: "Add dark mode to the settings page", body: "It would be great to have a dark theme option."},
   {title: "How do I configure the proxy for pip behind a firewall?", body: "I could not find this in the docs."},
   {title: "Segmentation fault when loading a large model", body: "Running model.load() on the 4GB checkpoint crashes with a segfault on Ubuntu 22.04. Stack trace attached."},
-  {title: "App crashes when I open the settings page", body: "Steps: open settings, scroll down.\nError: TypeError: cannot read property 'map' of undefined"}
+  {title: "Wrong output shape in tf.linalg.matmul with float16 on CUDA", body: "Expected shape (2, 4) but actual returned (4, 2). Tested on TensorFlow 2.12 and CUDA 11.8."}
 ];
 var nextExample = 0;
 var lastBatch = null;

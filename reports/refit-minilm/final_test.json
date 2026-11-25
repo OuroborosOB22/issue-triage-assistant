@@ -1,0 +1,112 @@
+{
+ "accuracy": 0.8066666666666666,
+ "confident_mistakes": [
+  {
+   "predicted": "question",
+   "repo": "microsoft/vscode",
+   "score": 0.994,
+   "title": "Behaviour of the Search-Box",
+   "true": "feature"
+  },
+  {
+   "predicted": "question",
+   "repo": "microsoft/vscode",
+   "score": 0.994,
+   "title": "VSCode warning 64 bit Windows users about deprecated 32 bit Windows support",
+   "true": "bug"
+  },
+  {
+   "predicted": "question",
+   "repo": "bitcoin/bitcoin",
+   "score": 0.994,
+   "title": "`-torcontrol` asks tor to connect to port 0, and tor refuses",
+   "true": "bug"
+  },
+  {
+   "predicted": "question",
+   "repo": "bitcoin/bitcoin",
+   "score": 0.994,
+   "title": "Build failing on Ubuntu 22.04",
+   "true": "bug"
+  },
+  {
+   "predicted": "question",
+   "repo": "facebook/react",
+   "score": 0.994,
+   "title": "Simultaneous key events in effect handled out of order",
+   "true": "feature"
+  }
+ ],
+ "confusion_matrix": {
+  "labels": [
+   "bug",
+   "feature",
+   "question"
+  ],
+  "matrix": [
+   [
+    398,
+    29,
+    73
+   ],
+   [
+    18,
+    435,
+    47
+   ],
+   [
+    58,
+    65,
+    377
+   ]
+  ]
+ },
+ "cross_repo_mean_f1": 0.8062022280526134,
+ "environment": {
+  "machine": "arm64",
+  "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "processor": "arm",
+  "python": "3.13.12"
+ },
+ "latency_ms_single": {
+  "median": 11.182853952050209,
+  "p95": 14.394127100240436,
+  "samples": 200
+ },
+ "macro_f1": 0.8063327719802906,
+ "manifest_sha256": "a7323dc5c7e68e5d154ca808fd3c8f095d22bc3e8c72ea0d9700b2c01d6a3a94",
+ "model_version": "setfit_all-MiniLM-L12-v2-9b9a6c95",
+ "per_class": {
+  "bug": {
+   "f1": 0.8172484599589322,
+   "precision": 0.8396624472573839,
+   "recall": 0.796,
+   "support": 500
+  },
+  "feature": {
+   "f1": 0.8454810495626822,
+   "precision": 0.8223062381852552,
+   "recall": 0.87,
+   "support": 500
+  },
+  "question": {
+   "f1": 0.7562688064192578,
+   "precision": 0.7585513078470825,
+   "recall": 0.754,
+   "support": 500
+  }
+ },
+ "per_repo_macro_f1": {
+  "bitcoin/bitcoin": 0.7232229414891954,
+  "facebook/react": 0.8277877063099189,
+  "microsoft/vscode": 0.7892874476175176,
+  "opencv/opencv": 0.8394045574315857,
+  "tensorflow/tensorflow": 0.8513084874148497
+ },
+ "review": {
+  "accepted": 0.5953333333333334,
+  "accuracy_on_accepted": 0.8566629339305711,
+  "threshold": 0.9886896014213562
+ },
+ "rows": 1500
+}

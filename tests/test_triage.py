@@ -183,6 +183,7 @@ def test_the_logo_is_served_and_used_as_the_tab_icon(client):
 def test_the_landing_page_is_served_and_leads_to_the_app(client):
     page = client.get("/")
     assert page.status_code == 200 and 'href="/app"' in page.text and 'href="#lifecycle"' in page.text
+    assert "nc3" not in page.text and page.text.count('class="figbox nm') == 2 and "Gurman Singh and Madhur Tuteja" in page.text
     assert "script-src 'self'" in page.headers["content-security-policy"]
     assert "<script>" not in page.text and "style=" not in page.text
     assert "https://" not in page.text and "http://" not in page.text
@@ -221,3 +222,89 @@ def test_review_threshold_prefers_the_lowest_confidence_that_still_meets_the_tar
     scores = [{"bug": 0.99, "feature": 0.0, "question": 0.01}, {"bug": 0.95, "feature": 0.0, "question": 0.05},
               {"bug": 0.9, "feature": 0.05, "question": 0.05}, {"bug": 0.2, "feature": 0.5, "question": 0.3}]
     assert metrics.review_threshold(truth, scores, target_accuracy=0.9) == 0.9
+
+
+def test_missing_setfit_runtime_leaves_service_unavailable_not_crashed(tmp_path, monkeypatch):
+    import sys
+    directory = tmp_path / "setfit-release"
+    (directory / artifacts.SETFIT_DIR).mkdir(parents=True)
+    (directory / artifacts.SETFIT_DIR / "config.json").write_text("{}")
+    artifacts.write_manifest(directory, "setfit", "setfit_test", "setfit-1", {"macro_f1": 0.8}, {"source": "test"}, 0.9)
+    monkeypatch.setitem(sys.modules, "setfit", None)
+    with pytest.raises(artifacts.UntrustedArtifact, match="setfit"):
+        artifacts.load(directory)
+    app = TestClient(create_app(directory, tmp_path / "none.json"))
+    assert app.get("/ready").status_code == 503
+    assert app.post("/v1/classify", json={"title": "crash bug"}).status_code == 503
+
+
+def test_frontend_examples_are_valid_issue_payloads():
+    import re
+    from triage.service import parse_issue
+    script = (Path(__file__).resolve().parents[1] / "src" / "triage" / "web" / "static" / "app.js").read_text()
+    match = re.search(r"var EXAMPLES = (\[.*?\]);", script, re.DOTALL)
+    assert match is not None
+    items = re.findall(r'title:\s*"((?:[^"\\]|\\.)*)"\s*,\s*body:\s*"((?:[^"\\]|\\.)*)"', match.group(1))
+    assert len(items) == 4
+    for title, body in items:
+        assert parse_issue({"title": title, "body": body.replace("\\n", "\n")})
+
+
+def test_compare_setfit_passes_the_seed_to_training(monkeypatch):
+    from triage import setfit_model
+    seen = {}
+
+    def fake_fit(issues, checkpoint, iterations, epochs, seed, device):
+        seen.update(checkpoint=checkpoint, iterations=iterations, epochs=epochs, seed=seed, device=device)
+        return "model"
+
+    monkeypatch.setattr(setfit_model, "fit", fake_fit)
+    monkeypatch.setattr(setfit_model, "predict_scores", lambda model, texts: [{"bug": 1.0, "feature": 0.0, "question": 0.0} for _ in texts])
+    issues = make_issues(per_label=3)
+    results = train.compare_setfit(issues, issues, ["org/small"], iterations=20, epochs=2, device="cuda", seed=23)
+    assert seen == {"checkpoint": "org/small", "iterations": 20, "epochs": 2, "seed": 23, "device": "cuda"}
+    assert results["setfit_small"]["dev"]["seed"] == 23
+
+
+def test_unseen_study_uses_the_given_model_settings(monkeypatch, tmp_path):
+    from triage import setfit_model, unseen
+    seen = []
+    monkeypatch.setattr(setfit_model, "fit", lambda issues, checkpoint, iterations, epochs, device: seen.append((checkpoint, iterations, epochs, device)) or "model")
+    monkeypatch.setattr(setfit_model, "predict_scores", lambda model, texts: [{"bug": 1.0, "feature": 0.0, "question": 0.0} for _ in texts])
+    issues = make_issues(per_label=30, repos=("a/one", "b/two"))
+    monkeypatch.setattr(train, "prepare", lambda raw: {"fit": issues[:60], "dev": issues[60:], "test": make_issues(per_label=6, repos=("a/one", "b/two"))})
+    out = unseen.run("raw", tmp_path, ["setfit"], "cuda", {"checkpoint": "org/big", "iterations": 20, "epochs": 2})
+    assert seen and set(seen) == {("org/big", 20, 2, "cuda")}
+    assert out["checkpoint"] == "org/big" and out["epochs"] == 2
+
+
+def test_refit_on_all_counts_the_development_rows():
+    from triage import cli
+    prepared = {"fit": [1] * 10, "dev": [1] * 3, "test": [], "dropped": {}}
+    assert cli.dataset_facts(prepared)["fit_rows"] == 10 and "refit_on_all" not in cli.dataset_facts(prepared)
+    assert cli.dataset_facts(prepared, True)["fit_rows"] == 13 and cli.dataset_facts(prepared, True)["refit_on_all"] is True
+
+
+def test_train_command_refits_the_chosen_setfit_model_on_all_rows(monkeypatch, tmp_path):
+    from triage import cli, setfit_model
+    issues = make_issues(per_label=20)
+    fit_issues, dev_issues = data.dev_split(issues)
+    prepared = {"fit": fit_issues, "dev": dev_issues, "test": [], "dropped": {}}
+    fitted_sizes = []
+    saved = {}
+
+    def fake_fit(rows, checkpoint, iterations, epochs, seed, device):
+        fitted_sizes.append(len(rows))
+        return "refit-model"
+
+    best = {"majority": {"model": None, "scores": [{"bug": 1.0, "feature": 0.0, "question": 0.0}] * len(dev_issues), "dev": {"macro_f1": 0.1}},
+            "setfit_big": {"model": "first-model", "scores": [{"bug": 1.0, "feature": 0.0, "question": 0.0}] * len(dev_issues),
+                           "dev": {"macro_f1": 0.9, "checkpoint": "org/big"}}}
+    monkeypatch.setattr(train, "prepare", lambda raw: prepared)
+    monkeypatch.setattr(train, "compare_baselines", lambda fit, dev: {"majority": best["majority"]})
+    monkeypatch.setattr(train, "compare_setfit", lambda *args: {"setfit_big": best["setfit_big"]})
+    monkeypatch.setattr(setfit_model, "fit", fake_fit)
+    monkeypatch.setattr(artifacts, "save_setfit", lambda *args: saved.update(model=args[1], facts=args[5], extra=args[7]))
+    cli.main(["train", "--setfit", "org/big", "--refit-on-all", "--out", str(tmp_path / "out"), "--reports", str(tmp_path / "rep")])
+    assert fitted_sizes == [len(fit_issues) + len(dev_issues)]
+    assert saved["model"] == "refit-model" and saved["facts"]["refit_on_all"] is True and saved["extra"]["refit_on_all"] is True
