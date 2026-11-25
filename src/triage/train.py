@@ -42,16 +42,16 @@ def best_name(results):
     return best
 
 
-def compare_setfit(fit_issues, dev_issues, checkpoints, iterations, epochs, device=None):
+def compare_setfit(fit_issues, dev_issues, checkpoints, iterations, epochs, device=None, seed=7):
     from . import setfit_model
     results = {}
     for checkpoint in checkpoints:
         started = time.perf_counter()
-        model = setfit_model.fit(fit_issues, checkpoint, iterations=iterations, epochs=epochs, device=device)
+        model = setfit_model.fit(fit_issues, checkpoint, iterations=iterations, epochs=epochs, seed=seed, device=device)
         seconds = round(time.perf_counter() - started, 1)
         scores = setfit_model.predict_scores(model, [issue.text for issue in dev_issues])
         report = metrics.evaluate([issue.label for issue in dev_issues], scores, [issue.repo for issue in dev_issues])
-        report.update({"train_seconds": seconds, "checkpoint": checkpoint, "iterations": iterations, "epochs": epochs, "device": device or "cpu"})
+        report.update({"train_seconds": seconds, "checkpoint": checkpoint, "iterations": iterations, "epochs": epochs, "seed": seed, "device": device or "cpu"})
         results["setfit_" + checkpoint.split("/")[-1]] = {"model": model, "scores": scores, "dev": report}
     return results
 

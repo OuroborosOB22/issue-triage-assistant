@@ -46,7 +46,7 @@ So on a project it has not seen, expect about 0.70 macro-F1 rather than 0.79. Th
 
 - The service has no login and no rate limit. Run it on your own machine only, and put access control in front of it before showing it to anyone else.
 - The 0.792 is for projects that were in training. For projects it has never seen, the study above gives about 0.70.
-- The competition's own template scores higher (about 0.86 to 0.87 per project). Ours is one model for all projects, with a smaller encoder, trained on 1,196 issues.
+- The competition's own template scores higher: 0.827 averaged over the five projects (react 0.872 and tensorflow 0.864 are its best). Ours is one model for all projects, with a smaller encoder, trained on 1,196 issues.
 - The scores are the model's confidence, not true probabilities. The "needs review" rule leaves about two thirds of issues without a review flag.
 - The labels come from each project's own labelling and contain some noise.
 

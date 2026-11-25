@@ -248,3 +248,38 @@ def test_frontend_examples_are_valid_issue_payloads():
     assert len(items) == 4
     for title, body in items:
         assert parse_issue({"title": title, "body": body.replace("\\n", "\n")})
+
+
+def test_compare_setfit_passes_the_seed_to_training(monkeypatch):
+    from triage import setfit_model
+    seen = {}
+
+    def fake_fit(issues, checkpoint, iterations, epochs, seed, device):
+        seen.update(checkpoint=checkpoint, iterations=iterations, epochs=epochs, seed=seed, device=device)
+        return "model"
+
+    monkeypatch.setattr(setfit_model, "fit", fake_fit)
+    monkeypatch.setattr(setfit_model, "predict_scores", lambda model, texts: [{"bug": 1.0, "feature": 0.0, "question": 0.0} for _ in texts])
+    issues = make_issues(per_label=3)
+    results = train.compare_setfit(issues, issues, ["org/small"], iterations=20, epochs=2, device="cuda", seed=23)
+    assert seen == {"checkpoint": "org/small", "iterations": 20, "epochs": 2, "seed": 23, "device": "cuda"}
+    assert results["setfit_small"]["dev"]["seed"] == 23
+
+
+def test_unseen_study_uses_the_given_model_settings(monkeypatch, tmp_path):
+    from triage import setfit_model, unseen
+    seen = []
+    monkeypatch.setattr(setfit_model, "fit", lambda issues, checkpoint, iterations, epochs, device: seen.append((checkpoint, iterations, epochs, device)) or "model")
+    monkeypatch.setattr(setfit_model, "predict_scores", lambda model, texts: [{"bug": 1.0, "feature": 0.0, "question": 0.0} for _ in texts])
+    issues = make_issues(per_label=30, repos=("a/one", "b/two"))
+    monkeypatch.setattr(train, "prepare", lambda raw: {"fit": issues[:60], "dev": issues[60:], "test": make_issues(per_label=6, repos=("a/one", "b/two"))})
+    out = unseen.run("raw", tmp_path, ["setfit"], "cuda", {"checkpoint": "org/big", "iterations": 20, "epochs": 2})
+    assert seen and set(seen) == {("org/big", 20, 2, "cuda")}
+    assert out["checkpoint"] == "org/big" and out["epochs"] == 2
+
+
+def test_refit_on_all_counts_the_development_rows():
+    from triage import cli
+    prepared = {"fit": [1] * 10, "dev": [1] * 3, "test": [], "dropped": {}}
+    assert cli.dataset_facts(prepared)["fit_rows"] == 10 and "refit_on_all" not in cli.dataset_facts(prepared)
+    assert cli.dataset_facts(prepared, True)["fit_rows"] == 13 and cli.dataset_facts(prepared, True)["refit_on_all"] is True
