@@ -283,3 +283,28 @@ def test_refit_on_all_counts_the_development_rows():
     prepared = {"fit": [1] * 10, "dev": [1] * 3, "test": [], "dropped": {}}
     assert cli.dataset_facts(prepared)["fit_rows"] == 10 and "refit_on_all" not in cli.dataset_facts(prepared)
     assert cli.dataset_facts(prepared, True)["fit_rows"] == 13 and cli.dataset_facts(prepared, True)["refit_on_all"] is True
+
+
+def test_train_command_refits_the_chosen_setfit_model_on_all_rows(monkeypatch, tmp_path):
+    from triage import cli, setfit_model
+    issues = make_issues(per_label=20)
+    fit_issues, dev_issues = data.dev_split(issues)
+    prepared = {"fit": fit_issues, "dev": dev_issues, "test": [], "dropped": {}}
+    fitted_sizes = []
+    saved = {}
+
+    def fake_fit(rows, checkpoint, iterations, epochs, seed, device):
+        fitted_sizes.append(len(rows))
+        return "refit-model"
+
+    best = {"majority": {"model": None, "scores": [{"bug": 1.0, "feature": 0.0, "question": 0.0}] * len(dev_issues), "dev": {"macro_f1": 0.1}},
+            "setfit_big": {"model": "first-model", "scores": [{"bug": 1.0, "feature": 0.0, "question": 0.0}] * len(dev_issues),
+                           "dev": {"macro_f1": 0.9, "checkpoint": "org/big"}}}
+    monkeypatch.setattr(train, "prepare", lambda raw: prepared)
+    monkeypatch.setattr(train, "compare_baselines", lambda fit, dev: {"majority": best["majority"]})
+    monkeypatch.setattr(train, "compare_setfit", lambda *args: {"setfit_big": best["setfit_big"]})
+    monkeypatch.setattr(setfit_model, "fit", fake_fit)
+    monkeypatch.setattr(artifacts, "save_setfit", lambda *args: saved.update(model=args[1], facts=args[5], extra=args[7]))
+    cli.main(["train", "--setfit", "org/big", "--refit-on-all", "--out", str(tmp_path / "out"), "--reports", str(tmp_path / "rep")])
+    assert fitted_sizes == [len(fit_issues) + len(dev_issues)]
+    assert saved["model"] == "refit-model" and saved["facts"]["refit_on_all"] is True and saved["extra"]["refit_on_all"] is True
