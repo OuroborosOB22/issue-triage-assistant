@@ -42,6 +42,33 @@ We also left each project out of training in turn, trained again, and scored tha
 
 So on a project it has not seen, expect about 0.70 macro-F1 rather than 0.79. The neural model still beats the simple one by about 0.10. Part of the drop is that each of these runs trained on about 957 issues instead of 1,196, so the gap is not all down to the unseen project.
 
+## Did a bigger model or more data help?
+
+We tried to beat the shipped model on the development slice. Every model used the same settings (10 iterations, 1 epoch, batch 16), three seeds each. The rule was written before the runs: a new model must beat the MiniLM mean by more than 0.02. The control ran on a Colab T4 and the others on a Colab L4. Results are in `reports/colab/sweep/` (made with `scripts/colab_sweep.py`).
+
+| Model | Dev macro-F1, seeds 7, 11, 23 | Mean | Gain over MiniLM | Passed |
+|---|---|---|---|---|
+| MiniLM-L12 (control) | 0.8200, 0.7935, 0.7970 | 0.8035 | none | none |
+| mpnet-base | 0.8173, 0.8230, 0.8301 | 0.8234 | +0.01996 | no, missed by 0.00004 |
+| bge-base | 0.7837, 0.8268, 0.7975 | 0.8027 | -0.0008 | no |
+| bge-large | not run, we stopped for time | none | none | none |
+
+The same model and settings differ by up to 0.03 between seeds, so one run says very little. mpnet is also three times bigger and slower to serve. Nothing passed, so we kept MiniLM-L12.
+
+We then trained the same MiniLM-L12 again on all 1,496 clean training issues (the shipped one used 1,196) and looked at the test file a second time. This is a second look, so it is less clean than the first, and the model has now seen the development issues.
+
+| Test file, 1,500 issues | First look (shipped) | Second look (more data) |
+|---|---|---|
+| Macro-F1 | 0.7925 | 0.8063 |
+| Accuracy | 0.7933 | 0.8067 |
+| F1 bug, feature, question | 0.819, 0.830, 0.729 | 0.817, 0.846, 0.756 |
+| F1 bitcoin, react, vscode, opencv, tensorflow | 0.718, 0.818, 0.773, 0.782, 0.870 | 0.723, 0.828, 0.789, 0.839, 0.851 |
+| Share not flagged for review | 65.6% | 59.5% |
+| Accuracy on those not flagged | 87.9% | 85.7% |
+| Median time per issue | 11.8 ms | 11.2 ms |
+
+The gain is +0.014. It is within the size that seed changes alone can cause, so we do not claim it as proof. The review threshold was set on the earlier held-out model, and it fits the retrained model a little worse. The shipped release and its page still use the first model. The retrained one is in `reports/refit-minilm/` (made with `triage train --refit-on-all`). The unseen-project study above was not repeated; its settings did not change.
+
 ## Honest limits
 
 - The service has no login and no rate limit. Run it on your own machine only, and put access control in front of it before showing it to anyone else.
@@ -64,7 +91,7 @@ python3.13 -m venv .venv-train
 ./.venv-train/bin/triage serve                             # http://127.0.0.1:8090
 ```
 
-Use `--device cuda` on an NVIDIA GPU, or leave it out for the CPU (slow). Training the larger model took about 18 minutes on a 16 GB Apple silicon Mac. The `models/` folder is not committed, so train before you serve. `final-test` refuses to run twice, so the test set is only scored once.
+Use `--device cuda` on an NVIDIA GPU, or leave it out for the CPU (slow). `--seed N` sets the training seed, and `--refit-on-all` trains the chosen SetFit model again on all training issues. Add `--out` and `--reports` to write somewhere other than `models/candidate` and `reports`, so a release is not overwritten. `python scripts/colab_sweep.py` repeats the model comparison with three seeds. Training the larger model took about 18 minutes on a 16 GB Apple silicon Mac. The `models/` folder is not committed, so train before you serve. `final-test` refuses to run twice, so the test set is only scored once.
 
 Open http://127.0.0.1:8090. The front page explains the idea, and **Start** opens the tool at `/app` (Classify, Batch, Evaluation).
 
