@@ -1,0 +1,64 @@
+{
+ "accuracy": 0.82,
+ "checkpoint": "sentence-transformers/all-MiniLM-L12-v2",
+ "confusion_matrix": {
+  "labels": [
+   "bug",
+   "feature",
+   "question"
+  ],
+  "matrix": [
+   [
+    87,
+    5,
+    8
+   ],
+   [
+    9,
+    82,
+    9
+   ],
+   [
+    16,
+    7,
+    77
+   ]
+  ]
+ },
+ "cross_repo_mean_f1": 0.8183363117628872,
+ "device": "cuda",
+ "epochs": 1,
+ "iterations": 10,
+ "macro_f1": 0.8199766582376969,
+ "name": "minilm_l12_base",
+ "per_class": {
+  "bug": {
+   "f1": 0.8207547169811321,
+   "precision": 0.7767857142857143,
+   "recall": 0.87,
+   "support": 100
+  },
+  "feature": {
+   "f1": 0.845360824742268,
+   "precision": 0.8723404255319149,
+   "recall": 0.82,
+   "support": 100
+  },
+  "question": {
+   "f1": 0.7938144329896907,
+   "precision": 0.8191489361702128,
+   "recall": 0.77,
+   "support": 100
+  }
+ },
+ "per_repo_macro_f1": {
+  "bitcoin/bitcoin": 0.7482384823848238,
+  "facebook/react": 0.8116648209671465,
+  "microsoft/vscode": 0.8335958335958337,
+  "opencv/opencv": 0.8164160401002506,
+  "tensorflow/tensorflow": 0.8817663817663818
+ },
+ "rows": 300,
+ "seed": 7,
+ "train_seconds": 897.5
+}

@@ -1,0 +1,20 @@
+{
+ "bge_base": {
+  "mean": 0.8027,
+  "mean_train_seconds": 910.7,
+  "runs": 3,
+  "spread": 0.018
+ },
+ "minilm_l12_base": {
+  "mean": 0.8035,
+  "mean_train_seconds": 892.4,
+  "runs": 3,
+  "spread": 0.0117
+ },
+ "mpnet_base": {
+  "mean": 0.8234,
+  "mean_train_seconds": 1094.4,
+  "runs": 3,
+  "spread": 0.0053
+ }
+}
